@@ -1,0 +1,569 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NPF CRM – Create User</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #7f8c8d;
+            --danger: #e74c3c;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --info: #3498db;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --card-shadow: 0 4px 16px rgba(0,0,0,0.10);
+            --transition: 0.3s ease;
+        }
+
+        body {
+            background-color: #f2f5f8;
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            flex-direction: column;
+        }
+
+        .create-card {
+            width: 100%;
+            max-width: 500px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            padding: 35px;
+            animation: fadeIn 0.6s ease;
+        }
+
+        .card-header-custom {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .card-header-custom .icon-circle {
+            width: 70px;
+            height: 70px;
+            margin-bottom: 15px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .card-header-custom .icon-circle i {
+            font-size: 1.8rem;
+            color: white;
+        }
+
+        .card-header-custom h4 {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .card-header-custom p {
+            color: var(--secondary);
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            font-weight: 500;
+            margin-bottom: 6px;
+            display: block;
+            color: var(--primary);
+        }
+
+        label .required {
+            color: var(--danger);
+        }
+
+        .form-control, .form-select {
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #d0d7df;
+            font-size: 0.95rem;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(44,62,80,0.15);
+        }
+
+        .form-control.is-invalid, .form-select.is-invalid {
+            border-color: var(--danger);
+        }
+
+        .invalid-feedback {
+            color: var(--danger);
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: var(--transition);
+            margin-top: 10px;
+        }
+
+        .auth-btn:hover {
+            background: #1e2d3b;
+            transform: translateY(-2px);
+        }
+
+        .auth-btn:disabled {
+            background: var(--secondary);
+            transform: none;
+            cursor: not-allowed;
+        }
+
+        .switch-link {
+            text-align: center;
+            font-size: 0.9rem;
+            margin-top: 18px;
+        }
+
+        .switch-link a {
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .switch-link a:hover {
+            text-decoration: underline;
+        }
+
+        .alert {
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert-danger {
+            background-color: #fdf2f2;
+            border: 1px solid #f8d7da;
+            color: var(--danger);
+        }
+
+        .alert-success {
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: var(--success);
+        }
+
+        /* Password display card */
+        .password-card {
+            background: linear-gradient(135deg, var(--primary) 0%, #1a252f 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .password-card h5 {
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .password-card .warning {
+            background: rgba(255,255,255,0.15);
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        .password-card .warning i {
+            color: var(--warning);
+            margin-right: 8px;
+        }
+
+        .password-display {
+            background: rgba(255,255,255,0.1);
+            border: 1px dashed rgba(255,255,255,0.3);
+            border-radius: 6px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .password-display .label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            opacity: 0.7;
+            margin-bottom: 5px;
+        }
+
+        .password-display .value {
+            font-size: 1.4rem;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .copy-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            width: 100%;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .copy-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .copy-btn.copied {
+            background: var(--success);
+        }
+
+        .row {
+            margin-left: -10px;
+            margin-right: -10px;
+        }
+
+        .row > [class*="col-"] {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+    
+</head>
+
+<body>
+
+    <div class="create-card">
+        <div class="card-header-custom">
+            <div class="icon-circle">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <h4>Create New User</h4>
+            <p>Add a new user to the NPF CRM system</p>
+        </div>
+
+        <!-- Alert Messages -->
+        <div class="alert alert-danger" id="errorAlert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <span id="errorMessage"></span>
+        </div>
+
+        <div class="alert alert-success" id="successAlert">
+            <i class="fas fa-check-circle me-2"></i>
+            <span id="successMessage"></span>
+        </div>
+
+        <form id="createUserForm">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="username">Username <span class="required">*</span></label>
+                        <input class="form-control"
+                               type="text"
+                               id="username"
+                               placeholder="e.g., jsmith"
+                               required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="name">Full Name <span class="required">*</span></label>
+                        <input class="form-control"
+                               type="text"
+                               id="name"
+                               placeholder="e.g., John Smith"
+                               required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address <span class="required">*</span></label>
+                <input class="form-control"
+                       type="email"
+                       id="email"
+                       placeholder="e.g., jsmith@npf.gov"
+                       required>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="role">Role <span class="required">*</span></label>
+                        <select class="form-select" id="role" required>
+                            <option value="">Select role</option>
+                            <option value="admin">Administrator</option>
+                            <option value="officer">Officer</option>
+                            <option value="viewer">Viewer</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="department">Department</label>
+                        <select class="form-select" id="department">
+                            <option value="General">General</option>
+                            <option value="Command">Command</option>
+                            <option value="Patrol">Patrol</option>
+                            <option value="Investigations">Investigations</option>
+                            <option value="Narcotics">Narcotics</option>
+                            <option value="Traffic">Traffic</option>
+                            <option value="K-9 Unit">K-9 Unit</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="auth-btn" id="submitBtn">
+                <i class="fas fa-user-plus me-2"></i> Create User
+            </button>
+        </form>
+
+        <!-- Generated Password Display -->
+        <div class="password-card" id="passwordCard">
+            <h5><i class="fas fa-key me-2"></i> User Created Successfully</h5>
+            <div class="warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>Important:</strong> Save this password now. It will NOT be shown again!
+            </div>
+            <div class="password-display">
+                <div class="label">Generated Password</div>
+                <div class="value" id="generatedPassword"></div>
+            </div>
+            <div class="password-display">
+                <div class="label">Username</div>
+                <div class="value" id="createdUsername" style="font-size: 1.1rem;"></div>
+            </div>
+            <button class="copy-btn" id="copyBtn" onclick="copyCredentials()">
+                <i class="fas fa-copy me-2"></i> Copy Credentials
+            </button>
+        </div>
+
+        <p class="switch-link">
+            <a href="index.html">
+                <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+            </a>
+        </p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+ 
+    
+    <script>
+        // Configuration
+        const API_BASE_URL = 'http://localhost:5000/api';
+
+        // DOM Elements
+        const createUserForm = document.getElementById('createUserForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const errorAlert = document.getElementById('errorAlert');
+        const errorMessage = document.getElementById('errorMessage');
+        const successAlert = document.getElementById('successAlert');
+        const successMessage = document.getElementById('successMessage');
+        const passwordCard = document.getElementById('passwordCard');
+        const generatedPassword = document.getElementById('generatedPassword');
+        const createdUsername = document.getElementById('createdUsername');
+        const copyBtn = document.getElementById('copyBtn');
+
+        // Get auth token
+        function getToken() {
+            return localStorage.getItem('authToken');
+        }
+
+        // Check if user is admin
+        function checkAdminAccess() {
+            const token = getToken();
+            const user = localStorage.getItem('currentUser');
+
+            if (!token || !user) {
+                window.location.href = 'log_in.html';
+                return;
+            }
+
+            try {
+                const userData = JSON.parse(user);
+                if (userData.role !== 'admin') {
+                    alert('Access denied. Only administrators can create users.');
+                    window.location.href = 'index.html';
+                }
+            } catch (e) {
+                console.error('Error parsing user data:', e);
+                window.location.href = 'log_in.html';
+            }
+        }
+
+        // Show error message
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorAlert.style.display = 'block';
+            successAlert.style.display = 'none';
+            passwordCard.style.display = 'none';
+        }
+
+        // Show success message
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successAlert.style.display = 'block';
+            errorAlert.style.display = 'none';
+        }
+
+        // Hide all alerts
+        function hideAlerts() {
+            errorAlert.style.display = 'none';
+            successAlert.style.display = 'none';
+        }
+
+        // Set loading state
+        function setLoading(loading) {
+            if (loading) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Creating...';
+            } else {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-user-plus me-2"></i> Create User';
+            }
+        }
+
+        // Validate email format
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        // Copy credentials to clipboard
+        function copyCredentials() {
+            const username = createdUsername.textContent;
+            const password = generatedPassword.textContent;
+            const text = `Username: ${username}\nPassword: ${password}`;
+
+            navigator.clipboard.writeText(text).then(() => {
+                copyBtn.innerHTML = '<i class="fas fa-check me-2"></i> Copied!';
+                copyBtn.classList.add('copied');
+                
+                setTimeout(() => {
+                    copyBtn.innerHTML = '<i class="fas fa-copy me-2"></i> Copy Credentials';
+                    copyBtn.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                
+                copyBtn.innerHTML = '<i class="fas fa-check me-2"></i> Copied!';
+                copyBtn.classList.add('copied');
+            });
+        }
+
+        // Handle form submission
+        createUserForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideAlerts();
+
+            const username = document.getElementById('username').value.trim();
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const role = document.getElementById('role').value;
+            const department = document.getElementById('department').value;
+
+            // Validate
+            if (!username || !name || !email || !role) {
+                showError('Please fill in all required fields');
+                return;
+            }
+
+            if (!isValidEmail(email)) {
+                showError('Please enter a valid email address');
+                return;
+            }
+
+            if (username.length < 3) {
+                showError('Username must be at least 3 characters');
+                return;
+            }
+
+            setLoading(true);
+
+            try {
+                const token = getToken();
+                const response = await fetch(`${API_BASE_URL}/users`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        username,
+                        name,
+                        email,
+                        role,
+                        department
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to create user');
+                }
+
+                // Show success
+                showSuccess('User created successfully!');
+                
+                // Display generated password
+                generatedPassword.textContent = data.data.generatedPassword;
+                createdUsername.textContent = data.data.username;
+                passwordCard.style.display = 'block';
+
+                // Reset form
+                createUserForm.reset();
+
+            } catch (error) {
+                console.error('Create user error:', error);
+                showError(error.message || 'Failed to create user');
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        // Check admin access on page load
+        document.addEventListener('DOMContentLoaded', checkAdminAccess);
+    </script>
+
+</body>
+</html>

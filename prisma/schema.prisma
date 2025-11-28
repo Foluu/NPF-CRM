@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model user {
+  id               Int           @id @default(autoincrement())
+  username         String        @unique(map: "User_username_key")
+  password         String
+  email            String?       @unique(map: "email")
+  name             String
+  role             String        @default("officer")
+  department       String        @default("General")
+  status           String        @default("active")
+  lastLogin        DateTime?     @db.DateTime(0)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  activityLogs     activitylog[]
+  assignedCases    caseFile[]    @relation("AssignedOfficer")
+  createdCases     caseFile[]    @relation("CaseCreator")
+  generatedReports report[]      @relation("ReportGenerator")
+
+  @@map("user")
+}
+
+model activitylog {
+  id        Int      @id @default(autoincrement())
+  message   String?  @db.Text
+  userId    Int?
+  action    String?  @db.VarChar(255)
+  metadata  String?  @db.Text
+  timestamp DateTime @default(now())
+  user      user?    @relation(fields: [userId], references: [id], onUpdate: NoAction, map: "fk_activitylog_user")
+
+  @@index([timestamp], map: "idx_timestamp")
+  @@index([userId], map: "idx_userId")
+  @@map("activitylog")
+}
+
+model caseFile {
+  id          Int        @id @default(autoincrement())
+  caseId      String     @unique(map: "caseId")
+  type        String
+  description String?    @db.Text
+  status      String     @default("open")
+  priority    String     @default("medium")
+  location    String
+  reporter    String?
+  officerId   Int?
+  createdById Int
+  reported    DateTime   @default(now()) @db.DateTime(0)
+  createdAt   DateTime   @default(now()) @db.DateTime(0)
+  updatedAt   DateTime   @default(now()) @updatedAt @db.DateTime(0)
+  officer     user?      @relation("AssignedOfficer", fields: [officerId], references: [id], onUpdate: NoAction, map: "cases_ibfk_1")
+  createdBy   user       @relation("CaseCreator", fields: [createdById], references: [id], onUpdate: NoAction, map: "cases_ibfk_2")
+  incidents   incident[]
+  reports     report[]
+
+  @@index([caseId], map: "idx_caseId")
+  @@index([createdById], map: "idx_createdById")
+  @@index([officerId], map: "idx_officerId")
+  @@index([priority], map: "idx_priority")
+  @@index([status], map: "idx_status")
+  @@map("cases")
+}
+
+model officer {
+  id          Int       @id @default(autoincrement())
+  badge       Int       @unique(map: "badge")
+  firstName   String
+  lastName    String
+  rank_       String
+  unit        String
+  department  String    @default("General")
+  email       String?   @unique(map: "email")
+  phone       String?
+  status      String    @default("available")
+  activeCases Int       @default(0)
+  totalCases  Int       @default(0)
+  hiredAt     DateTime? @db.DateTime(0)
+  createdAt   DateTime  @default(now()) @db.DateTime(0)
+  updatedAt   DateTime  @default(now()) @updatedAt @db.DateTime(0)
+
+  @@index([badge], map: "idx_badge")
+  @@index([email], map: "idx_email")
+  @@index([status], map: "idx_status")
+  @@map("officers")
+}
+
+model report {
+  id            Int       @id @default(autoincrement())
+  reportId      String    @unique(map: "reportId")
+  type          String
+  format        String    @default("PDF")
+  notes         String?   @db.Text
+  caseId        Int?
+  generatedById Int
+  date          DateTime  @default(now()) @db.DateTime(0)
+  createdAt     DateTime  @default(now()) @db.DateTime(0)
+  updatedAt     DateTime  @default(now()) @updatedAt @db.DateTime(0)
+  case          caseFile? @relation(fields: [caseId], references: [id], onUpdate: NoAction, map: "reports_ibfk_1")
+  generatedBy   user      @relation("ReportGenerator", fields: [generatedById], references: [id], onUpdate: NoAction, map: "reports_ibfk_2")
+
+  @@index([caseId], map: "idx_caseId")
+  @@index([generatedById], map: "idx_generatedById")
+  @@index([reportId], map: "idx_reportId")
+  @@index([type], map: "idx_type")
+  @@map("reports")
+}
+
+model incident {
+  id          Int       @id @default(autoincrement())
+  type        String
+  priority    String    @default("medium")
+  description String    @db.Text
+  address     String
+  coordinates String?
+  reporter    String?
+  status      String    @default("active")
+  caseId      Int?
+  timestamp   DateTime  @default(now()) @db.DateTime(0)
+  createdAt   DateTime  @default(now()) @db.DateTime(0)
+  updatedAt   DateTime  @default(now()) @updatedAt @db.DateTime(0)
+  case        caseFile? @relation(fields: [caseId], references: [id], onUpdate: NoAction, map: "incidents_ibfk_1")
+
+  @@index([caseId], map: "idx_caseId")
+  @@index([priority], map: "idx_priority")
+  @@index([status], map: "idx_status")
+  @@index([timestamp], map: "idx_timestamp")
+  @@map("incidents")
+}
