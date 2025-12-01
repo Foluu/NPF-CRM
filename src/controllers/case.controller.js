@@ -181,17 +181,39 @@ const createCase = async (req, res, next) => {
     const caseId = await generateCaseId();
 
     // Find officer if specified
+  // UPDATED OFFICER ASSIGNMENT LOGIC
     let officerId = null;
     if (officer) {
-      const officerUser = await prisma.user.findFirst({
-        where: {
-          OR: [
-            { username: officer },
-            { name: { contains: officer  } }
-          ]
+      // If officer is a number, treat it as user ID
+      if (!isNaN(officer) && officer !== '') {
+        const userId = parseInt(officer);
+        const userExists = await prisma.user.findUnique({
+          where: { id: userId },
+          select: { id: true, role: true }
+        });
+        
+        if (userExists) {
+          officerId = userId;
+          console.log('Officer assigned by ID:', officerId);
+        } else {
+          console.warn('User ID not found:', userId);
         }
-      });
-      if (officerUser) officerId = officerUser.id;
+      } else {
+        // Otherwise, search by username or name
+        const officerUser = await prisma.user.findFirst({
+          where: {
+            OR: [
+              { username: officer },
+              { name: { contains: officer } }
+            ]
+          }
+        });
+        
+        if (officerUser) {
+          officerId = officerUser.id;
+          console.log('Officer assigned by name:', officerId);
+        }
+      }
     }
 
     // Create case
@@ -292,19 +314,38 @@ const updateCase = async (req, res, next) => {
     if (status) data.status = status;
 
     // Find officer if specified
-    if (officer !== undefined) {
-      if (officer === '' || officer === null) {
-        data.officerId = null;
+  // UPDATED OFFICER ASSIGNMENT LOGIC
+    let officerId = null;
+    if (officer) {
+      // If officer is a number, treat it as user ID
+      if (!isNaN(officer) && officer !== '') {
+        const userId = parseInt(officer);
+        const userExists = await prisma.user.findUnique({
+          where: { id: userId },
+          select: { id: true, role: true }
+        });
+        
+        if (userExists) {
+          officerId = userId;
+          console.log('Officer assigned by ID:', officerId);
+        } else {
+          console.warn('User ID not found:', userId);
+        }
       } else {
+        // Otherwise, search by username or name
         const officerUser = await prisma.user.findFirst({
           where: {
             OR: [
               { username: officer },
-              { name: { contains: officer  } }
+              { name: { contains: officer } }
             ]
           }
         });
-        if (officerUser) data.officerId = officerUser.id;
+        
+        if (officerUser) {
+          officerId = officerUser.id;
+          console.log('Officer assigned by name:', officerId);
+        }
       }
     }
 

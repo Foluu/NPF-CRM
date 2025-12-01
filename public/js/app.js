@@ -673,35 +673,36 @@ function resolveOfficerName(caseData) {
  * Sets the officer dropdown value intelligently
  * Matches against option values and text content
  */
+
 function setOfficerDropdown(selectElement, officerValue) {
   if (!selectElement || !officerValue || officerValue === 'Unassigned') {
     selectElement.value = '';
     return;
   }
   
-  const needle = String(officerValue).toLowerCase().trim();
+  // officerValue is a string name like "Rodriguez"
+  // We need to find the matching option by TEXT content
   
-  // Try exact value match first
+  const needle = String(officerValue).toLowerCase().trim();
+  let matchFound = false;
+  
   Array.from(selectElement.options).forEach(opt => {
-    if (opt.value.toLowerCase() === needle) {
+    const optText = opt.text.toLowerCase();
+    
+    // Match if option text contains the officer name
+    if (optText.includes(needle) || needle.includes(optText.toLowerCase())) {
       selectElement.value = opt.value;
-      return;
+      matchFound = true;
+      console.log(`Matched "${officerValue}" to option:`, opt.text, 'value:', opt.value);
     }
   });
   
-  // If no exact match, try partial match on option text
-  if (!selectElement.value) {
-    Array.from(selectElement.options).forEach(opt => {
-      const optText = opt.text.toLowerCase();
-      
-      // Match if option text contains the officer name
-      // e.g., "Officer Rodriguez" contains "rodriguez"
-      if (optText.includes(needle)) {
-        selectElement.value = opt.value;
-      }
-    });
+  if (!matchFound) {
+    console.warn(`⚠️ Could not match officer "${officerValue}" to any dropdown option`);
   }
 }
+
+/* ------------------------------------------------------------------ */
 
 // Debug function 
 window.debugDashboard = async function() {
@@ -776,6 +777,39 @@ async function loadCases() {
     showToast("Could not load cases", "danger");
   }
 }
+
+/* ------------------------------------------------------------------
+   DYNAMIC OFFICER DROPDOWN POPULATION
+   ------------------------------------------------------------------ */
+
+async function populateOfficerDropdown() {
+  try {
+    // Fetch all users with officer role
+    const users = await api.fetchUsers();
+    console.log("exact sql response:", users);
+    const officers = users.filter(u => u.role === 'officer' || u.role === 'admin');
+    
+    const dropdown = document.getElementById('caseOfficer');
+    if (!dropdown) return;
+    
+    // Clear existing options except the first one
+    dropdown.innerHTML = '<option value="">Select Officer</option>';
+    
+    // Add officers dynamically
+    officers.forEach(officer => {
+      const option = document.createElement('option');
+      option.value = officer.id; // user ID as value
+      option.textContent = officer.name || officer.username;
+      dropdown.appendChild(option);
+    });
+    
+    console.log('Officer dropdown populated with', officers.length, 'officers');
+    
+  } catch (e) {
+    console.error('Error populating officer dropdown:', e);
+  }
+}
+
 
 function renderCasesTable() {
   const tbody = document.querySelector("#casesTable tbody");
@@ -1036,6 +1070,11 @@ function initializeModals() {
     document.getElementById('newCaseModalLabel').textContent = 'Create New Case';
     document.getElementById('saveCase').textContent = 'Create Case';
   });
+
+  document.getElementById('newCaseModal')?.addEventListener('show.bs.modal', async () => {
+  await populateOfficerDropdown();
+  });
+
 
   // ========================================================================
   // OFFICER MODAL - Create
