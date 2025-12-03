@@ -1565,7 +1565,7 @@ window.downloadReport = async (reportId) => {
     }, 1000);
 
     /* When backend PDF route is ready, use this: */
-    const response = await fetch(`http://localhost:5000/api/reports/${reportId}/pdf`, {
+    const response = await fetch(`https://npf-crm.onrender.com/api/reports/${reportId}/pdf`, {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('authToken')}`
       }
