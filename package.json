@@ -5,13 +5,18 @@
   "main": "src/app.js",
   "scripts": {
     "start": "node src/app.js",
+
     "dev": "nodemon src/app.js",
+
     "db:migrate": "npx prisma migrate dev",
     "db:push": "npx prisma db push",
     "db:seed": "node prisma/seed.js",
     "db:reset": "npx prisma migrate reset",
     "db:studio": "npx prisma studio",
-    "postinstall": "npx prisma generate"
+
+    "postinstall": "npx prisma generate",
+
+    "render-postdeploy": "npx prisma migrate deploy && node prisma/seed.js"
   },
   "dependencies": {
     "@prisma/client": "^5.0.0",
@@ -28,5 +33,4 @@
   "prisma": {
     "seed": "node prisma/seed.js"
   }
-
 }
