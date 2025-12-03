@@ -948,13 +948,14 @@ function renderReportsTable() {
 }
 
 /* ------------------------------------------------------------------
-   SETTINGS â†’ USER MANAGEMENT
+   SETTINGS at USER MANAGEMENT
    ------------------------------------------------------------------ */
 
 async function loadUsers() {
   try {
     allUsers = await api.fetchUsers();
     renderUsersTable();
+    console.log('Loaded users:', allUsers);
   } catch (e) {
     console.error(e);
     showToast("Could not load users", "danger");
@@ -972,7 +973,8 @@ function renderUsersTable() {
       <td><span class="badge ${u.status === "active" ? "bg-success" : "bg-secondary"}">${u.status}</span></td>
       <td class="action-buttons">
         <button class="btn btn-sm btn-primary ${currentUser?.role !== "admin" ? "d-none" : ""}"><i class="fas fa-edit"></i></button>
-        <button class="btn btn-sm btn-danger ${currentUser?.role !== "admin" ? "d-none" : ""}"><i class="fas fa-trash"></i></button>
+        <button class="btn btn-sm btn-danger ${currentUser?.role !== "admin" ? "d-none" : ""}"
+            onclick="window.deleteUser('${u.id}')"><i class="fas fa-trash"></i></button>
       </td>
     </tr>
   `).join('');
@@ -1611,6 +1613,31 @@ window.deleteReport = async (reportId) => {
     showToast('Error deleting report: ' + e.message, "danger");
   }
 };
+
+
+/**
+ * Delete User - Admin only
+ */
+window.deleteUser = async (id) => {
+  if (currentUser?.role !== "admin") {
+    return showToast('Only admins can delete a user', "danger");
+  }
+  
+  if (!confirm(`Are you sure you want to delete this user: ${id}? This action cannot be undone.`)) {
+    return;
+  }
+
+  try {
+    await api.deleteUserApi(id);
+    await loadUsers();
+    showToast(`Report ${id} deleted successfully`, "success");
+  } catch (e) {
+    console.error('Error deleting user:', e);
+    showToast('Error deleting user: ' + e.message, "danger");
+  }
+};
+
+
 
 /* ------------------------------------------------------------------
    INCIDENTS PAGE
