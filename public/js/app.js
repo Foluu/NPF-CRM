@@ -1235,6 +1235,9 @@ function initializeModals() {
     if (pwd !== pwd2) return showToast('Passwords do not match', "danger");
     if (pwd.length < 6) return showToast('Password must be at least 6 characters', "danger");
 
+    const bcrypt = require("bcryptjs");
+    const hashedPass = await bcrypt.hash("pwd", 10);
+
     const email = document.getElementById('userEmail').value;
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showToast('Invalid email', "danger");
 
@@ -1243,7 +1246,7 @@ function initializeModals() {
       name: document.getElementById('username').value,
       email,
       role: document.getElementById('userRole').value,
-      password: pwd,
+      password: hashedPass,
       department: 'General'
     };
 
